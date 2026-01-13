@@ -7,6 +7,10 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Dashboard } from './pages/Dashboard';
 import { CategoryDetailPage } from './pages/CategoryDetailPage';
+import { TermsOfService } from './pages/TermsOfService';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { CookiePolicy } from './pages/CookiePolicy';
+import { CookieBanner } from './components/CookieBanner';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -50,6 +54,9 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/cookies" element={<CookiePolicy />} />
       <Route
         path="/login"
         element={
@@ -92,6 +99,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <AppRoutes />
+          <CookieBanner />
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

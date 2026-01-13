@@ -11,6 +11,9 @@ export interface Profile {
   level: number;
   streak: number;
   is_public: boolean;
+  accepted_terms_version?: string;
+  accepted_privacy_version?: string;
+  last_policy_check_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -122,4 +125,33 @@ export interface LeaderboardEntry {
   total_xp: number;
   activities_count: number;
   rank: number;
+}
+
+export interface Policy {
+  id: string;
+  policy_type: 'terms_of_service' | 'privacy_policy' | 'cookie_policy';
+  version: string;
+  content: string;
+  effective_date: string;
+  created_at: string;
+}
+
+export interface CookiePreferences {
+  essential: boolean;
+  analytics: boolean;
+  marketing: boolean;
+}
+
+export interface UserConsent {
+  id: string;
+  user_id: string;
+  terms_version?: string;
+  privacy_version?: string;
+  cookie_version?: string;
+  terms_accepted_at?: string;
+  privacy_accepted_at?: string;
+  cookie_accepted_at?: string;
+  cookie_preferences: CookiePreferences;
+  created_at: string;
+  updated_at: string;
 }
