@@ -86,7 +86,7 @@ export function Footer() {
 
               <div>
                 <h4 className="font-semibold mb-3">Follow us</h4>
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center">
                   {socialLinks.map((social) => (
                     <motion.a
                       key={social.label}
@@ -101,6 +101,23 @@ export function Footer() {
                       <social.icon className="w-5 h-5" />
                     </motion.a>
                   ))}
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    className="ml-4 pl-4 border-l border-white/20"
+                  >
+                    <a
+                      href="https://skillsnap.web.app"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block group"
+                    >
+                      <img
+                        src="/skillsnap.publicqrcode.png"
+                        alt="SkillSnap QR Code"
+                        className="w-12 h-12 rounded-lg bg-white p-1 group-hover:shadow-lg transition-shadow"
+                      />
+                    </a>
+                  </motion.div>
                 </div>
               </div>
             </div>
