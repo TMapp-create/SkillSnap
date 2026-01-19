@@ -9,9 +9,10 @@ interface ActivityFeedProps {
   userId?: string;
   categoryFilter?: string;
   limit?: number;
+  refreshKey?: number;
 }
 
-export function ActivityFeed({ userId, categoryFilter, limit }: ActivityFeedProps) {
+export function ActivityFeed({ userId, categoryFilter, limit, refreshKey }: ActivityFeedProps) {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ export function ActivityFeed({ userId, categoryFilter, limit }: ActivityFeedProp
   useEffect(() => {
     loadCategories();
     loadActivities();
-  }, [userId, categoryFilter]);
+  }, [userId, categoryFilter, refreshKey]);
 
   const loadCategories = async () => {
     const { data } = await supabase
@@ -153,8 +154,30 @@ export function ActivityFeed({ userId, categoryFilter, limit }: ActivityFeedProp
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ delay: index * 0.05 }}
-              className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden"
+              className={`rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden ${
+                activity.is_posted
+                  ? 'bg-gradient-to-br from-[#0F52BA] to-[#0D4494] dark:from-[#1E3A8A] dark:to-[#1E3A7A] ring-2 ring-white/30'
+                  : 'bg-[#0F52BA] dark:bg-[#1E3A8A]'
+              }`}
             >
+              {activity.is_posted && (
+                <div className="bg-white/20 backdrop-blur-sm px-4 py-2 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Icons.Users className="w-4 h-4 text-white" />
+                    <span className="text-sm text-white font-medium">
+                      Community Post
+                    </span>
+                    {activity.profile && activity.user_id !== user?.id && (
+                      <>
+                        <span className="text-white/50">•</span>
+                        <span className="text-sm text-white/90">
+                          by {activity.profile.full_name}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex items-start gap-4">
                   <motion.div
