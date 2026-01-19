@@ -6,33 +6,22 @@ import { CategoryStats, Category } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface SkillsReportCardProps {
   userId: string;
   userName: string;
-  refreshKey?: number;
 }
 
-interface ActivityWithCategory {
-  id: string;
-  title: string;
-  date: string;
-  duration_hours: number;
-  xp_earned: number;
-  description?: string;
-  category?: Category;
-}
-
-export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportCardProps) {
+export function SkillsReportCard({ userId, userName }: SkillsReportCardProps) {
   const navigate = useNavigate();
   const [stats, setStats] = useState<CategoryStats[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [allActivities, setAllActivities] = useState<ActivityWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
-  }, [userId, refreshKey]);
+  }, [userId]);
 
   const loadData = async () => {
     setLoading(true);
@@ -42,34 +31,22 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
       .select('*')
       .order('name');
 
-    const { data: activitiesData } = await supabase
-      .from('activities')
-      .select('*, category:categories(*)')
-      .eq('user_id', userId)
-      .eq('status', 'approved')
-      .order('date', { ascending: false });
-
-    if (activitiesData) {
-      setAllActivities(activitiesData);
-    }
-
     if (categoriesData) {
       setCategories(categoriesData);
 
       const statsPromises = categoriesData.map(async (category) => {
-        const categoryActivities = activitiesData?.filter(
-          (a) => a.category_id === category.id
-        ) || [];
+        const { data: activities } = await supabase
+          .from('activities')
+          .select('duration_hours, xp_earned')
+          .eq('user_id', userId)
+          .eq('category_id', category.id)
+          .eq('status', 'approved');
 
-        const totalHours = categoryActivities.reduce(
-          (sum, a) => sum + Number(a.duration_hours),
-          0
-        );
-        const totalXP = categoryActivities.reduce(
-          (sum, a) => sum + Number(a.xp_earned),
-          0
-        );
-        const activitiesCount = categoryActivities.length;
+        const totalHours =
+          activities?.reduce((sum, a) => sum + Number(a.duration_hours), 0) || 0;
+        const totalXP =
+          activities?.reduce((sum, a) => sum + Number(a.xp_earned), 0) || 0;
+        const activitiesCount = activities?.length || 0;
 
         const targetHours = 50;
         const progressPercentage = Math.min((totalHours / targetHours) * 100, 100);
@@ -92,166 +69,21 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
   };
 
   const exportToPDF = async () => {
+    const element = document.getElementById('skills-report-card');
+    if (!element) return;
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 15;
-    const contentWidth = pageWidth - margin * 2;
-    let yPos = margin;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    const addNewPageIfNeeded = (requiredSpace: number) => {
-      if (yPos + requiredSpace > pageHeight - margin) {
-        pdf.addPage();
-        yPos = margin;
-        return true;
-      }
-      return false;
-    };
-
-    pdf.setFillColor(15, 82, 186);
-    pdf.rect(0, 0, pageWidth, 50, 'F');
-
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(24);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Skills Report Card', margin, 25);
-
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(userName, margin, 35);
-    pdf.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), pageWidth - margin, 35, { align: 'right' });
-
-    yPos = 60;
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Summary', margin, yPos);
-    yPos += 8;
-
-    const summaryBoxWidth = (contentWidth - 10) / 3;
-    const summaryBoxes = [
-      { label: 'Total XP', value: totalXP.toLocaleString() },
-      { label: 'Total Hours', value: totalHours.toFixed(1) },
-      { label: 'Activities', value: totalActivities.toString() },
-    ];
-
-    summaryBoxes.forEach((box, i) => {
-      const x = margin + i * (summaryBoxWidth + 5);
-      pdf.setFillColor(240, 244, 248);
-      pdf.roundedRect(x, yPos, summaryBoxWidth, 25, 3, 3, 'F');
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(box.label, x + summaryBoxWidth / 2, yPos + 8, { align: 'center' });
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(15, 82, 186);
-      pdf.text(box.value, x + summaryBoxWidth / 2, yPos + 20, { align: 'center' });
-    });
-
-    yPos += 35;
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Category Breakdown', margin, yPos);
-    yPos += 8;
-
-    pdf.setFillColor(15, 82, 186);
-    pdf.rect(margin, yPos, contentWidth, 8, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(9);
-    pdf.setFont('helvetica', 'bold');
-    const catHeaders = ['Category', 'Hours', 'XP', 'Activities', 'Progress'];
-    const catColWidths = [60, 25, 30, 30, 35];
-    let xOffset = margin + 3;
-    catHeaders.forEach((header, i) => {
-      pdf.text(header, xOffset, yPos + 5.5);
-      xOffset += catColWidths[i];
-    });
-    yPos += 8;
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFont('helvetica', 'normal');
-    stats.forEach((stat, i) => {
-      addNewPageIfNeeded(8);
-      if (i % 2 === 0) {
-        pdf.setFillColor(248, 250, 252);
-        pdf.rect(margin, yPos, contentWidth, 8, 'F');
-      }
-      xOffset = margin + 3;
-      pdf.setFontSize(9);
-      pdf.text(stat.category.name.substring(0, 25), xOffset, yPos + 5.5);
-      xOffset += catColWidths[0];
-      pdf.text(stat.total_hours.toFixed(1), xOffset, yPos + 5.5);
-      xOffset += catColWidths[1];
-      pdf.text(stat.total_xp.toString(), xOffset, yPos + 5.5);
-      xOffset += catColWidths[2];
-      pdf.text(stat.activities_count.toString(), xOffset, yPos + 5.5);
-      xOffset += catColWidths[3];
-      pdf.text(`${Math.round(stat.progress_percentage)}%`, xOffset, yPos + 5.5);
-      yPos += 8;
-    });
-
-    yPos += 10;
-    addNewPageIfNeeded(30);
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Activity Log', margin, yPos);
-    yPos += 8;
-
-    pdf.setFillColor(15, 82, 186);
-    pdf.rect(margin, yPos, contentWidth, 8, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(8);
-    pdf.setFont('helvetica', 'bold');
-    const actHeaders = ['Date', 'Category', 'Activity Title', 'Hours', 'XP'];
-    const actColWidths = [25, 35, 75, 20, 25];
-    xOffset = margin + 2;
-    actHeaders.forEach((header, i) => {
-      pdf.text(header, xOffset, yPos + 5.5);
-      xOffset += actColWidths[i];
-    });
-    yPos += 8;
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFont('helvetica', 'normal');
-    allActivities.forEach((activity, i) => {
-      addNewPageIfNeeded(8);
-      if (i % 2 === 0) {
-        pdf.setFillColor(248, 250, 252);
-        pdf.rect(margin, yPos, contentWidth, 8, 'F');
-      }
-      xOffset = margin + 2;
-      pdf.setFontSize(8);
-      const date = new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
-      pdf.text(date, xOffset, yPos + 5.5);
-      xOffset += actColWidths[0];
-      const categoryName = activity.category?.name || 'Unknown';
-      pdf.text(categoryName.substring(0, 15), xOffset, yPos + 5.5);
-      xOffset += actColWidths[1];
-      pdf.text(activity.title.substring(0, 35), xOffset, yPos + 5.5);
-      xOffset += actColWidths[2];
-      pdf.text(activity.duration_hours.toString(), xOffset, yPos + 5.5);
-      xOffset += actColWidths[3];
-      pdf.text(`+${activity.xp_earned}`, xOffset, yPos + 5.5);
-      yPos += 8;
-    });
-
-    if (allActivities.length === 0) {
-      pdf.setFontSize(10);
-      pdf.setTextColor(128, 128, 128);
-      pdf.text('No activities logged yet', margin + contentWidth / 2, yPos + 10, { align: 'center' });
-    }
-
-    pdf.setFontSize(8);
-    pdf.setTextColor(128, 128, 128);
-    pdf.text('Generated by SkillSnap', pageWidth / 2, pageHeight - 10, { align: 'center' });
-
-    pdf.save(`${userName.replace(/\s+/g, '-')}-skills-report.pdf`);
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`${userName}-skills-report.pdf`);
   };
 
   const getCategoryIcon = (iconName: string) => {
@@ -265,11 +97,11 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
 
   if (loading) {
     return (
-      <div className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl p-8 animate-pulse">
-        <div className="h-8 bg-white/20 rounded w-1/3 mb-6"></div>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 animate-pulse">
+        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-6"></div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-32 bg-white/20 rounded-lg"></div>
+            <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
           ))}
         </div>
       </div>
@@ -277,13 +109,13 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
   }
 
   return (
-    <div id="skills-report-card" className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl shadow-xl p-6 md:p-8">
+    <div id="skills-report-card" className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-white mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Skills Report Card
           </h2>
-          <p className="text-white/80">
+          <p className="text-gray-600 dark:text-gray-400">
             Track your progress across all skill categories
           </p>
         </div>
@@ -292,7 +124,7 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={exportToPDF}
-          className="mt-4 md:mt-0 flex items-center gap-2 px-6 py-3 bg-white text-[#0F52BA] rounded-lg hover:bg-white/90 transition-all font-medium shadow-lg"
+          className="mt-4 md:mt-0 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium shadow-lg"
         >
           <Download className="w-5 h-5" />
           Export PDF
@@ -303,7 +135,7 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white/20 backdrop-blur-sm text-white p-6 rounded-xl"
+          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl"
         >
           <div className="flex items-center gap-3 mb-2">
             <TrendingUp className="w-6 h-6" />
@@ -316,7 +148,7 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/20 backdrop-blur-sm text-white p-6 rounded-xl"
+          className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl"
         >
           <div className="flex items-center gap-3 mb-2">
             <Icons.Clock className="w-6 h-6" />
@@ -329,7 +161,7 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/20 backdrop-blur-sm text-white p-6 rounded-xl"
+          className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl"
         >
           <div className="flex items-center gap-3 mb-2">
             <Icons.Activity className="w-6 h-6" />
@@ -354,7 +186,7 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
               onClick={() => navigate(`/category/${stat.category_id}`)}
-              className="flex flex-col items-center p-4 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all cursor-pointer"
+              className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:shadow-lg transition-shadow cursor-pointer"
             >
               <div className="relative w-28 h-28 mb-3">
                 <svg className="w-full h-full transform -rotate-90">
@@ -365,13 +197,13 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
                     stroke="currentColor"
                     strokeWidth="8"
                     fill="none"
-                    className="text-white/20"
+                    className="text-gray-200 dark:text-gray-600"
                   />
                   <motion.circle
                     cx="56"
                     cy="56"
                     r={radius}
-                    stroke="white"
+                    stroke={stat.category.color}
                     strokeWidth="8"
                     fill="none"
                     strokeLinecap="round"
@@ -383,20 +215,23 @@ export function SkillsReportCard({ userId, userName, refreshKey }: SkillsReportC
                     }}
                   />
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center text-white">
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ color: stat.category.color }}
+                >
                   <Icon className="w-8 h-8" />
                 </div>
               </div>
 
-              <h3 className="text-sm font-bold text-white text-center mb-1">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white text-center mb-1">
                 {stat.category.name}
               </h3>
 
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">
+                <div className="text-2xl font-bold" style={{ color: stat.category.color }}>
                   {Math.round(stat.progress_percentage)}%
                 </div>
-                <div className="text-xs text-white/70">
+                <div className="text-xs text-gray-600 dark:text-gray-400">
                   {stat.total_hours.toFixed(1)}h • {stat.total_xp} XP
                 </div>
               </div>

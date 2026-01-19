@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Link as LinkIcon, Sparkles, Users } from 'lucide-react';
+import { X, Upload, Link as LinkIcon, Sparkles } from 'lucide-react';
 import { Category } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,7 +23,6 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
     description: '',
     photo_url: '',
     proof_link: '',
-    is_posted: false,
   });
 
   useEffect(() => {
@@ -70,7 +69,6 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
       proof_link: formData.proof_link || null,
       xp_earned: xpEarned,
       status: 'approved',
-      is_posted: formData.is_posted,
     });
 
     if (!error) {
@@ -101,7 +99,6 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
         description: '',
         photo_url: '',
         proof_link: '',
-        is_posted: false,
       });
 
       onSuccess();
@@ -129,27 +126,27 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="fixed inset-4 md:inset-auto md:left-1/2 md:top-8 md:-translate-x-1/2 md:w-full md:max-w-2xl bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[90vh]"
           >
-            <div className="flex items-center justify-between p-6 border-b border-white/20">
-              <h2 className="text-2xl font-bold text-white">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Log Activity
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category
                   </label>
                   <select
@@ -158,11 +155,11 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                     onChange={(e) =>
                       setFormData({ ...formData, category_id: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white backdrop-blur-sm"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                   >
-                    <option value="" className="text-gray-900">Select a category</option>
+                    <option value="">Select a category</option>
                     {categories.map((category) => (
-                      <option key={category.id} value={category.id} className="text-gray-900">
+                      <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
                     ))}
@@ -170,7 +167,7 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Title
                   </label>
                   <input
@@ -181,13 +178,13 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                       setFormData({ ...formData, title: e.target.value })
                     }
                     placeholder="e.g., Guitar Practice Session"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white placeholder-white/50 backdrop-blur-sm"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Date
                     </label>
                     <input
@@ -197,12 +194,12 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                       onChange={(e) =>
                         setFormData({ ...formData, date: e.target.value })
                       }
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white backdrop-blur-sm"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Duration (hours)
                     </label>
                     <input
@@ -215,13 +212,13 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                         setFormData({ ...formData, duration_hours: e.target.value })
                       }
                       placeholder="2.5"
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white placeholder-white/50 backdrop-blur-sm"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Description
                   </label>
                   <textarea
@@ -231,64 +228,16 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                     }
                     rows={3}
                     placeholder="Tell us about your activity..."
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white placeholder-white/50 backdrop-blur-sm resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white resize-none"
                   />
                 </div>
 
-                <motion.div
-                  className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                    formData.is_posted
-                      ? 'bg-white/20 border-white'
-                      : 'bg-white/5 border-white/20'
-                  }`}
-                  onClick={() =>
-                    setFormData({ ...formData, is_posted: !formData.is_posted })
-                  }
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`p-2 rounded-lg ${
-                          formData.is_posted
-                            ? 'bg-white text-[#0F52BA]'
-                            : 'bg-white/10 text-white'
-                        }`}
-                      >
-                        <Users className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-white font-medium">
-                          Share with Community
-                        </div>
-                        <div className="text-white/70 text-sm">
-                          Make this activity visible to others
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      className={`relative w-12 h-6 rounded-full transition-colors ${
-                        formData.is_posted ? 'bg-white' : 'bg-white/20'
-                      }`}
-                    >
-                      <motion.div
-                        className={`absolute top-1 w-4 h-4 rounded-full ${
-                          formData.is_posted ? 'bg-[#0F52BA]' : 'bg-white'
-                        }`}
-                        animate={{ left: formData.is_posted ? '28px' : '4px' }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Photo URL
                   </label>
                   <div className="relative">
-                    <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
+                    <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="url"
                       value={formData.photo_url}
@@ -296,17 +245,17 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                         setFormData({ ...formData, photo_url: e.target.value })
                       }
                       placeholder="https://example.com/photo.jpg"
-                      className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white placeholder-white/50 backdrop-blur-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Proof Link (optional)
                   </label>
                   <div className="relative">
-                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
+                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type="url"
                       value={formData.proof_link}
@@ -314,7 +263,7 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                         setFormData({ ...formData, proof_link: e.target.value })
                       }
                       placeholder="https://..."
-                      className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/30 focus:border-white/30 text-white placeholder-white/50 backdrop-blur-sm"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -323,7 +272,7 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="bg-white text-[#0F52BA] p-4 rounded-lg flex items-center gap-3"
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg flex items-center gap-3"
                   >
                     <Sparkles className="w-6 h-6" />
                     <div>
@@ -338,14 +287,14 @@ export function LogActivityModal({ isOpen, onClose, onSuccess }: LogActivityModa
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors font-medium"
+                  className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-6 py-3 bg-white text-[#0F52BA] rounded-lg hover:bg-white/90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Logging...' : 'Log Activity'}
                 </button>

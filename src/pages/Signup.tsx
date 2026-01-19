@@ -3,45 +3,27 @@ import { motion } from 'framer-motion';
 import { UserPlus, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { PolicyAcceptanceModal } from '../components/PolicyAcceptanceModal';
 
 export function Signup() {
-  const { signUp, acceptPolicies } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showPolicyModal, setShowPolicyModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!acceptedPolicies) {
-      setError('Please accept the Terms of Service and Privacy Policy to continue');
-      return;
-    }
-
     setLoading(true);
     setError('');
 
     try {
       await signUp(email, password, fullName);
-      setShowPolicyModal(true);
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
-      setLoading(false);
-    }
-  };
-
-  const handlePolicyAccept = async (termsVersion: string, privacyVersion: string) => {
-    try {
-      await acceptPolicies(termsVersion, privacyVersion);
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError('Failed to accept policies');
+    } finally {
       setLoading(false);
     }
   };
@@ -124,35 +106,6 @@ export function Signup() {
               </p>
             </div>
 
-            <div className="pt-2">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={acceptedPolicies}
-                  onChange={(e) => setAcceptedPolicies(e.target.checked)}
-                  className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  I agree to the{' '}
-                  <Link
-                    to="/terms"
-                    target="_blank"
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    Terms of Service
-                  </Link>
-                  {' '}and{' '}
-                  <Link
-                    to="/privacy"
-                    target="_blank"
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    Privacy Policy
-                  </Link>
-                </span>
-              </label>
-            </div>
-
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -178,11 +131,6 @@ export function Signup() {
           </div>
         </div>
       </motion.div>
-
-      <PolicyAcceptanceModal
-        isOpen={showPolicyModal}
-        onAccept={handlePolicyAccept}
-      />
     </div>
   );
 }
