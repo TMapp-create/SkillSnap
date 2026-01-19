@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
-import { ArrowLeft, Trophy } from 'lucide-react';
-import { Category, SubSkill, Badge, LeaderboardEntry } from '../types';
+import { ArrowLeft, Trophy, Users } from 'lucide-react';
+import { Category, SubSkill, Badge, LeaderboardEntry, Activity } from '../types';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +18,7 @@ export function CategoryDetail({ categoryId, userId }: CategoryDetailProps) {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [earnedBadgeIds, setEarnedBadgeIds] = useState<Set<string>>(new Set());
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [communityPosts, setCommunityPosts] = useState<Activity[]>([]);
   const [userStats, setUserStats] = useState({ totalHours: 0, totalXP: 0, activitiesCount: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -120,6 +121,23 @@ export function CategoryDetail({ categoryId, userId }: CategoryDetailProps) {
         }));
 
       setLeaderboard(leaderboardData);
+    }
+
+    const { data: postedActivities } = await supabase
+      .from('activities')
+      .select(`
+        *,
+        profile:profiles(*),
+        category:categories(*)
+      `)
+      .eq('category_id', categoryId)
+      .eq('status', 'approved')
+      .eq('is_posted', true)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (postedActivities) {
+      setCommunityPosts(postedActivities);
     }
 
     setLoading(false);
@@ -276,7 +294,7 @@ export function CategoryDetail({ categoryId, userId }: CategoryDetailProps) {
         </div>
 
         {leaderboard.length > 0 && (
-          <div>
+          <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Trophy className="w-6 h-6" style={{ color: category.color }} />
               Leaderboard
@@ -323,6 +341,64 @@ export function CategoryDetail({ categoryId, userId }: CategoryDetailProps) {
                       {entry.total_xp.toLocaleString()}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">XP</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {communityPosts.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Users className="w-6 h-6" style={{ color: category.color }} />
+              Community Posts
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {communityPosts.map((post) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 p-5 rounded-lg border-2"
+                  style={{ borderColor: category.color }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-bold text-gray-900 dark:text-white mb-1">
+                        {post.title}
+                      </h3>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        by {post.profile?.full_name || 'Unknown'}
+                      </div>
+                    </div>
+                    <div
+                      className="px-3 py-1 rounded-full text-sm font-bold text-white"
+                      style={{ backgroundColor: category.color }}
+                    >
+                      +{post.xp_earned} XP
+                    </div>
+                  </div>
+
+                  {post.description && (
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 line-clamp-2">
+                      {post.description}
+                    </p>
+                  )}
+
+                  {post.photo_url && (
+                    <img
+                      src={post.photo_url}
+                      alt={post.title}
+                      className="w-full h-32 object-cover rounded-lg mb-3"
+                    />
+                  )}
+
+                  <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                    <span>{new Date(post.date).toLocaleDateString()}</span>
+                    <span>•</span>
+                    <span>{post.duration_hours}h</span>
                   </div>
                 </motion.div>
               ))}
