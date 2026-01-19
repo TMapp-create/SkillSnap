@@ -89,12 +89,12 @@ export function AdminVerificationPanel() {
 
   if (!profile?.is_admin) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
-        <Shield className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl shadow-xl p-8 text-center">
+        <Shield className="w-16 h-16 mx-auto text-white/60 mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">
           Admin Access Required
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-white/80">
           You need administrator privileges to access this panel.
         </p>
       </div>
@@ -103,11 +103,11 @@ export function AdminVerificationPanel() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 animate-pulse">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-6"></div>
+      <div className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl p-8 animate-pulse">
+        <div className="h-8 bg-white/20 rounded w-1/3 mb-6"></div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div key={i} className="h-24 bg-white/20 rounded"></div>
           ))}
         </div>
       </div>
@@ -116,21 +116,21 @@ export function AdminVerificationPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+      <div className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl shadow-xl p-6">
         <div className="flex items-center gap-3 mb-6">
-          <Shield className="w-8 h-8 text-blue-500" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <Shield className="w-8 h-8 text-white" />
+          <h2 className="text-2xl font-bold text-white">
             Admin Verification Panel
           </h2>
         </div>
 
         <div className="mb-8">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+          <h3 className="text-xl font-bold text-white mb-4">
             Pending Activities ({pendingActivities.length})
           </h3>
 
           {pendingActivities.length === 0 ? (
-            <div className="text-center py-8 text-gray-600 dark:text-gray-400">
+            <div className="text-center py-8 text-white/80">
               No pending activities to review
             </div>
           ) : (
@@ -140,33 +140,33 @@ export function AdminVerificationPanel() {
                   key={activity.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 border border-gray-200 dark:border-gray-600"
+                  className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/20"
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+                          <h4 className="text-lg font-bold text-white">
                             {activity.title}
                           </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-white/70">
                             by {activity.profile?.full_name} •{' '}
                             {activity.category?.name}
                           </p>
                         </div>
-                        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                        <div className="bg-white text-[#0F52BA] px-3 py-1 rounded-full text-sm font-bold">
                           +{activity.xp_earned} XP
                         </div>
                       </div>
 
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <div className="text-sm text-white/70 mb-2">
                         <span>{new Date(activity.date).toLocaleDateString()}</span>
                         <span className="mx-2">•</span>
                         <span>{activity.duration_hours}h</span>
                       </div>
 
                       {activity.description && (
-                        <p className="text-gray-700 dark:text-gray-300 mb-3">
+                        <p className="text-white/90 mb-3">
                           {activity.description}
                         </p>
                       )}
@@ -184,7 +184,7 @@ export function AdminVerificationPanel() {
                           href={activity.proof_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline text-sm mb-3"
+                          className="inline-flex items-center gap-2 text-white hover:underline text-sm mb-3"
                         >
                           <ExternalLink className="w-4 h-4" />
                           View Proof
@@ -198,7 +198,7 @@ export function AdminVerificationPanel() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleVerify(activity.id, 'approved')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#0F52BA] rounded-lg hover:bg-white/90 transition-colors font-medium"
                     >
                       <CheckCircle className="w-5 h-5" />
                       Approve
@@ -208,7 +208,7 @@ export function AdminVerificationPanel() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleVerify(activity.id, 'denied')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors font-medium"
                     >
                       <XCircle className="w-5 h-5" />
                       Deny
@@ -220,24 +220,24 @@ export function AdminVerificationPanel() {
           )}
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="border-t border-white/20 pt-8">
+          <h3 className="text-xl font-bold text-white mb-4">
             Award Official Badge
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Select User
               </label>
               <select
                 value={selectedUser}
                 onChange={(e) => setSelectedUser(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm"
               >
-                <option value="">Choose a user</option>
+                <option value="" className="text-gray-900">Choose a user</option>
                 {users.map((u) => (
-                  <option key={u.id} value={u.id}>
+                  <option key={u.id} value={u.id} className="text-gray-900">
                     {u.full_name} ({u.email})
                   </option>
                 ))}
@@ -245,17 +245,17 @@ export function AdminVerificationPanel() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Select Badge
               </label>
               <select
                 value={selectedBadge}
                 onChange={(e) => setSelectedBadge(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm"
               >
-                <option value="">Choose a badge</option>
+                <option value="" className="text-gray-900">Choose a badge</option>
                 {badges.map((badge) => (
-                  <option key={badge.id} value={badge.id}>
+                  <option key={badge.id} value={badge.id} className="text-gray-900">
                     {badge.name} ({badge.category?.name || 'General'}) - {badge.tier}
                   </option>
                 ))}
@@ -268,7 +268,7 @@ export function AdminVerificationPanel() {
             whileTap={{ scale: 0.95 }}
             onClick={handleAwardBadge}
             disabled={!selectedUser || !selectedBadge}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-3 bg-white text-[#0F52BA] rounded-lg hover:bg-white/90 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Award className="w-5 h-5" />
             Award Badge

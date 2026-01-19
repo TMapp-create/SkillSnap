@@ -146,11 +146,11 @@ export function GoalSetter({ userId }: GoalSetterProps) {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 animate-pulse">
-        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+      <div className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl p-6 animate-pulse">
+        <div className="h-6 bg-white/20 rounded w-1/3 mb-4"></div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div key={i} className="h-20 bg-white/20 rounded"></div>
           ))}
         </div>
       </div>
@@ -158,7 +158,7 @@ export function GoalSetter({ userId }: GoalSetterProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
+    <div className="bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl shadow-xl p-6">
       {showConfetti && (
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
@@ -174,8 +174,8 @@ export function GoalSetter({ userId }: GoalSetterProps) {
 
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <Target className="w-8 h-8 text-blue-500" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Goals</h2>
+          <Target className="w-8 h-8 text-white" />
+          <h2 className="text-2xl font-bold text-white">Goals</h2>
         </div>
 
         {user?.id === userId && (
@@ -183,7 +183,7 @@ export function GoalSetter({ userId }: GoalSetterProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-white text-[#0F52BA] rounded-lg hover:bg-white/90 transition-all font-medium"
           >
             <Plus className="w-5 h-5" />
             Add Goal
@@ -193,8 +193,8 @@ export function GoalSetter({ userId }: GoalSetterProps) {
 
       {goals.length === 0 ? (
         <div className="text-center py-12">
-          <Target className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">No goals set yet</p>
+          <Target className="w-12 h-12 mx-auto text-white/60 mb-4" />
+          <p className="text-white/80">No goals set yet</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -205,16 +205,16 @@ export function GoalSetter({ userId }: GoalSetterProps) {
               animate={{ opacity: 1, y: 0 }}
               className={`p-5 rounded-xl border-2 ${
                 goal.is_completed
-                  ? 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-500'
-                  : 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
+                  ? 'bg-white/30 backdrop-blur-sm border-white'
+                  : 'bg-white/10 backdrop-blur-sm border-white/20'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-lg font-bold text-white mb-1">
                     {goal.category?.name}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-2 text-sm text-white/80">
                     <span>Target: {goal.target_hours}h</span>
                     <span>•</span>
                     <span className="capitalize">{goal.period}</span>
@@ -229,36 +229,35 @@ export function GoalSetter({ userId }: GoalSetterProps) {
                 {user?.id === userId && !goal.is_completed && (
                   <button
                     onClick={() => handleDelete(goal.id)}
-                    className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                   >
-                    <Trash2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <Trash2 className="w-4 h-4 text-white" />
                   </button>
                 )}
               </div>
 
               <div className="mb-2">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                  <span className="font-medium text-white">
                     {goal.current_hours?.toFixed(1) || 0}h / {goal.target_hours}h
                   </span>
-                  <span className="font-bold" style={{ color: goal.category?.color }}>
+                  <span className="font-bold text-white">
                     {Math.round(goal.progress_percentage || 0)}%
                   </span>
                 </div>
 
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3 overflow-hidden">
+                <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${goal.progress_percentage || 0}%` }}
                     transition={{ duration: 1, ease: 'easeOut' }}
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: goal.category?.color }}
+                    className="h-full rounded-full bg-white"
                   />
                 </div>
               </div>
 
               {goal.is_completed && (
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold text-sm">
+                <div className="flex items-center gap-2 text-white font-semibold text-sm">
                   <PartyPopper className="w-4 h-4" />
                   Goal Completed!
                 </div>
@@ -283,23 +282,23 @@ export function GoalSetter({ userId }: GoalSetterProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-50 p-6"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[#0F52BA] dark:bg-[#1E3A8A] rounded-2xl shadow-2xl z-50 p-6"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold text-white">
                   Set New Goal
                 </h3>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                  className="p-2 hover:bg-white/20 rounded-lg"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5 text-white" />
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Category
                   </label>
                   <select
@@ -308,11 +307,11 @@ export function GoalSetter({ userId }: GoalSetterProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, category_id: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm"
                   >
-                    <option value="">Select category</option>
+                    <option value="" className="text-gray-900">Select category</option>
                     {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
+                      <option key={cat.id} value={cat.id} className="text-gray-900">
                         {cat.name}
                       </option>
                     ))}
@@ -320,7 +319,7 @@ export function GoalSetter({ userId }: GoalSetterProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Target Hours
                   </label>
                   <input
@@ -331,12 +330,12 @@ export function GoalSetter({ userId }: GoalSetterProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, target_hours: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 backdrop-blur-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white mb-2">
                     Period
                   </label>
                   <select
@@ -347,17 +346,17 @@ export function GoalSetter({ userId }: GoalSetterProps) {
                         period: e.target.value as 'semester' | 'year' | 'custom',
                       })
                     }
-                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm"
                   >
-                    <option value="semester">Semester (4 months)</option>
-                    <option value="year">Year (12 months)</option>
-                    <option value="custom">Custom</option>
+                    <option value="semester" className="text-gray-900">Semester (4 months)</option>
+                    <option value="year" className="text-gray-900">Year (12 months)</option>
+                    <option value="custom" className="text-gray-900">Custom</option>
                   </select>
                 </div>
 
                 {formData.period === 'custom' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-white mb-2">
                       End Date
                     </label>
                     <input
@@ -367,14 +366,14 @@ export function GoalSetter({ userId }: GoalSetterProps) {
                       onChange={(e) =>
                         setFormData({ ...formData, end_date: e.target.value })
                       }
-                      className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                      className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white backdrop-blur-sm"
                     />
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium"
+                  className="w-full px-6 py-3 bg-white text-[#0F52BA] rounded-lg hover:bg-white/90 transition-all font-medium"
                 >
                   Create Goal
                 </button>
