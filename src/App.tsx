@@ -2,15 +2,10 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Dashboard } from './pages/Dashboard';
 import { CategoryDetailPage } from './pages/CategoryDetailPage';
-import { TermsOfService } from './pages/TermsOfService';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { CookiePolicy } from './pages/CookiePolicy';
-import { CookieBanner } from './components/CookieBanner';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -42,21 +37,15 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;
 }
 
 function AppRoutes() {
-  const { user } = useAuth();
-
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/cookies" element={<CookiePolicy />} />
       <Route
         path="/login"
         element={
@@ -74,7 +63,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/dashboard"
+        path="/"
         element={
           <ProtectedRoute>
             <Dashboard />
@@ -99,7 +88,6 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <AppRoutes />
-          <CookieBanner />
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

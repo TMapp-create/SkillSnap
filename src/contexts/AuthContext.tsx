@@ -11,8 +11,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  acceptPolicies: (termsVersion: string, privacyVersion: string) => Promise<void>;
-  needsPolicyAcceptance: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -107,43 +105,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const acceptPolicies = async (termsVersion: string, privacyVersion: string) => {
-    if (!user) throw new Error('No user logged in');
-
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        accepted_terms_version: termsVersion,
-        accepted_privacy_version: privacyVersion,
-        last_policy_check_at: new Date().toISOString(),
-      })
-      .eq('id', user.id);
-
-    if (profileError) throw profileError;
-
-    const { error: consentError } = await supabase
-      .from('user_consents')
-      .upsert({
-        user_id: user.id,
-        terms_version: termsVersion,
-        privacy_version: privacyVersion,
-        terms_accepted_at: new Date().toISOString(),
-        privacy_accepted_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id'
-      });
-
-    if (consentError) throw consentError;
-
-    await refreshProfile();
-  };
-
-  const needsPolicyAcceptance = () => {
-    if (!profile) return false;
-    return !profile.accepted_terms_version || !profile.accepted_privacy_version;
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -154,8 +115,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signOut,
         refreshProfile,
-        acceptPolicies,
-        needsPolicyAcceptance,
       }}
     >
       {children}

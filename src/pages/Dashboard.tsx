@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, LogOut, Moon, Sun, Shield, Filter } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { SkillsReportCard } from '../components/SkillsReportCard';
 import { ActivityFeed } from '../components/ActivityFeed';
@@ -21,7 +21,6 @@ export function Dashboard() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     loadCategories();
@@ -39,7 +38,6 @@ export function Dashboard() {
 
   const handleActivityLogged = () => {
     refreshProfile();
-    setRefreshKey((prev) => prev + 1);
   };
 
   if (!user || !profile) {
@@ -51,15 +49,13 @@ export function Dashboard() {
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/">
-              <motion.h1
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                SkillSnap
-              </motion.h1>
-            </Link>
+            <motion.h1
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            >
+              SkillSnap
+            </motion.h1>
 
             <div className="flex items-center gap-3">
               {profile.is_admin && (
@@ -115,7 +111,7 @@ export function Dashboard() {
               onUpdate={refreshProfile}
             />
 
-            <SkillsReportCard userId={user.id} userName={profile.full_name} refreshKey={refreshKey} />
+            <SkillsReportCard userId={user.id} userName={profile.full_name} />
 
             <div className="mt-8">
               <GoalSetter userId={user.id} />
@@ -146,7 +142,7 @@ export function Dashboard() {
                 </div>
               </div>
 
-              <ActivityFeed userId={user.id} categoryFilter={categoryFilter} refreshKey={refreshKey} />
+              <ActivityFeed userId={user.id} categoryFilter={categoryFilter} />
             </div>
           </>
         )}
