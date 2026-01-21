@@ -15,9 +15,12 @@ export function ProfileHeader({ profile, isOwnProfile, onUpdate }: ProfileHeader
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const isDemoMode = profile.id === 'demo-user-id';
   const profileUrl = `${window.location.origin}/profile/${profile.id}`;
 
   const handlePrivacyToggle = async () => {
+    if (isDemoMode) return;
+
     const newValue = !isPublic;
     const { error } = await supabase
       .from('profiles')
@@ -101,7 +104,7 @@ export function ProfileHeader({ profile, isOwnProfile, onUpdate }: ProfileHeader
           </div>
         </div>
 
-        {isOwnProfile && (
+        {isOwnProfile && !isDemoMode && (
           <div className="flex flex-col gap-2">
             <motion.button
               whileHover={{ scale: 1.05 }}

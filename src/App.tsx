@@ -53,7 +53,8 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/cookies" element={<CookiePolicy />} />
@@ -73,22 +74,8 @@ function AppRoutes() {
           </PublicRoute>
         }
       />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/category/:categoryId"
-        element={
-          <ProtectedRoute>
-            <CategoryDetailPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/category/:categoryId" element={<CategoryDetailPage />} />
     </Routes>
   );
 }

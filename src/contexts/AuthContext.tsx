@@ -44,23 +44,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const createDemoUser = () => {
+    // Create a mock user for demo purposes
+    const demoUser = {
+      id: 'demo-user-id',
+      email: 'demo@skillsnap.com',
+      created_at: new Date().toISOString(),
+    } as User;
+
+    const demoProfile: Profile = {
+      id: 'demo-user-id',
+      email: 'demo@skillsnap.com',
+      full_name: 'Demo User',
+      avatar_url: null,
+      bio: 'Exploring SkillSnap in demo mode',
+      school: 'Demo University',
+      graduation_year: 2025,
+      total_xp: 5000,
+      level: 6,
+      streak: 7,
+      is_public: true,
+      is_admin: false,
+      accepted_terms_version: '1.0',
+      accepted_privacy_version: '1.0',
+      last_policy_check_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    return { demoUser, demoProfile };
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
       if (session?.user) {
+        setUser(session.user);
         fetchProfile(session.user.id).then(setProfile);
+      } else {
+        // DEMO MODE: Automatically use demo user when not authenticated
+        const { demoUser, demoProfile } = createDemoUser();
+        setUser(demoUser);
+        setProfile(demoProfile);
       }
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
-        setUser(session?.user ?? null);
         if (session?.user) {
+          setUser(session.user);
           const profileData = await fetchProfile(session.user.id);
           setProfile(profileData);
         } else {
-          setProfile(null);
+          // DEMO MODE: Automatically use demo user when not authenticated
+          const { demoUser, demoProfile } = createDemoUser();
+          setUser(demoUser);
+          setProfile(demoProfile);
         }
         setLoading(false);
       })();

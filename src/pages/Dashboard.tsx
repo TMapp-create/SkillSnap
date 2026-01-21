@@ -46,12 +46,14 @@ export function Dashboard() {
     return null;
   }
 
+  const isDemoMode = user?.id === 'demo-user-id';
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/">
+            <Link to="/home">
               <motion.h1
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -62,6 +64,11 @@ export function Dashboard() {
             </Link>
 
             <div className="flex items-center gap-3">
+              {isDemoMode && (
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-lg text-sm font-medium">
+                  <span>Demo Mode</span>
+                </div>
+              )}
               {profile.is_admin && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -90,15 +97,27 @@ export function Dashboard() {
                 )}
               </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </motion.button>
+              {isDemoMode ? (
+                <Link to="/signup">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-colors font-medium"
+                  >
+                    <span>Sign Up</span>
+                  </motion.button>
+                </Link>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </motion.button>
+              )}
             </div>
           </div>
         </div>
@@ -152,14 +171,30 @@ export function Dashboard() {
         )}
       </main>
 
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setShowLogModal(true)}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all z-40"
-      >
-        <Plus className="w-8 h-8" />
-      </motion.button>
+      {!isDemoMode && (
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowLogModal(true)}
+          className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:from-blue-600 hover:to-purple-700 transition-all z-40"
+        >
+          <Plus className="w-8 h-8" />
+        </motion.button>
+      )}
+
+      {isDemoMode && (
+        <div className="fixed bottom-8 right-8 bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-4 z-40 max-w-xs">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+            <span className="font-semibold">Demo Mode:</span> Activity logging is disabled. Sign up to start tracking your skills!
+          </p>
+          <Link
+            to="/signup"
+            className="block w-full text-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all font-medium"
+          >
+            Sign Up
+          </Link>
+        </div>
+      )}
 
       <LogActivityModal
         isOpen={showLogModal}
